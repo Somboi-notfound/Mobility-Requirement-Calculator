@@ -18,12 +18,13 @@
         }
         input {
             padding: 10px;
-            width: 200px;
+            width: 220px;
             margin: 10px;
+            font-size: 16px;
         }
-        button {
-            padding: 10px 20px;
-            cursor: pointer;
+        p {
+            font-size: 18px;
+            margin-top: 15px;
         }
     </style>
 </head>
@@ -32,26 +33,78 @@
 <div class="box">
     <h2>Mobility Calculator</h2>
 
-    <input type="number" id="weight" placeholder="Enter weight (kg)">
-    <br>
-    <button onclick="calc()">Calculate</button>
+    <input type="text" id="weight" placeholder="Enter weight (e.g. 625, 1.5M)" oninput="calc()">
 
     <p id="result"></p>
 </div>
 
 <script>
+// Convert input like "1.5M" → number
+function parseNumber(str) {
+    if (!str) return NaN;
+
+    str = str.trim().toUpperCase();
+
+    const multipliers = {
+        K: 1e3,
+        M: 1e6,
+        B: 1e9,
+        T: 1e12,
+        QA: 1e15,
+        QN: 1e18,
+        SX: 1e21,
+        SP: 1e24
+    };
+
+    let match = str.match(/^([\d.]+)([A-Z]*)$/);
+    if (!match) return NaN;
+
+    let value = parseFloat(match[1]);
+    let suffix = match[2];
+
+    if (multipliers[suffix]) {
+        return value * multipliers[suffix];
+    }
+
+    return value;
+}
+
+// Convert number → formatted string
+function formatNumber(num) {
+    const units = [
+        { value: 1e24, symbol: "Sp" },
+        { value: 1e21, symbol: "Sx" },
+        { value: 1e18, symbol: "Qn" },
+        { value: 1e15, symbol: "Qa" },
+        { value: 1e12, symbol: "T" },
+        { value: 1e9, symbol: "B" },
+        { value: 1e6, symbol: "M" },
+        { value: 1e3, symbol: "K" }
+    ];
+
+    for (let i of units) {
+        if (num >= i.value) {
+            return (num / i.value).toFixed(2) + i.symbol;
+        }
+    }
+
+    return num.toString();
+}
+
+// Main calculation
 function calc() {
-    let W = parseFloat(document.getElementById("weight").value);
+    let input = document.getElementById("weight").value;
+    let W = parseNumber(input);
 
     if (!W || W <= 5) {
-        document.getElementById("result").innerText = "Invalid input";
+        document.getElementById("result").innerText = "Enter valid weight (>5)";
         return;
     }
 
     let M = Math.floor(Math.pow(W - 5, 2.222) * 15);
 
     document.getElementById("result").innerText =
-        "Required Mobility: " + M.toLocaleString();
+        "Required Mobility: " + formatNumber(M);
 }
 </script>
 
