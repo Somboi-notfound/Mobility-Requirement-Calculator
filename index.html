@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mobility Calculator</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            margin-top: 100px;
+            background: #111;
+            color: #fff;
+        }
+        .box {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        input {
+            padding: 10px;
+            width: 200px;
+            margin: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>Mobility Calculator</h2>
+
+    <input type="number" id="weight" placeholder="Enter weight (kg)">
+    <br>
+    <button onclick="calc()">Calculate</button>
+
+    <p id="result"></p>
+</div>
+
+<script>
+function calc() {
+    let W = parseFloat(document.getElementById("weight").value);
+
+    if (!W || W <= 5) {
+        document.getElementById("result").innerText = "Invalid input";
+        return;
+    }
+
+    let M = Math.floor(Math.pow(W - 5, 2.222) * 15);
+
+    document.getElementById("result").innerText =
+        "Required Mobility: " + M.toLocaleString();
+}
+</script>
+
+</body>
+</html>
