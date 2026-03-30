@@ -6,82 +6,73 @@
     <style>
         body {
             margin: 0;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             font-family: 'Segoe UI', Arial;
             color: white;
-            overflow: hidden;
 
-            background: radial-gradient(circle at 20% 30%, #5f00ff, transparent 40%),
-                        radial-gradient(circle at 80% 70%, #00d4ff, transparent 40%),
-                        radial-gradient(circle at center, #0a0a1f, #000);
-        }
-
-        /* ✨ floating stars */
-        body::before {
-            content: "";
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            background: transparent url("https://www.transparenttextures.com/patterns/stardust.png");
-            animation: moveStars 60s linear infinite;
-            opacity: 0.4;
-        }
-
-        @keyframes moveStars {
-            from { transform: translate(0, 0); }
-            to { transform: translate(-500px, -500px); }
+            background: url("shinyimage.webp") no-repeat center center;
+            background-size: cover;
         }
 
         .box {
-            position: relative;
-            background: rgba(20, 20, 40, 0.75);
-            padding: 30px;
+            background: rgba(10, 10, 30, 0.65);
+            padding: 25px;
             border-radius: 15px;
-            width: 320px;
-            text-align: center;
+            width: 360px;
             backdrop-filter: blur(12px);
-            box-shadow: 0 0 30px rgba(100, 0, 255, 0.6);
-            z-index: 1;
+            box-shadow: 0 0 30px rgba(150, 0, 255, 0.7);
         }
 
         h2 {
-            margin-bottom: 20px;
-            color: #b388ff;
-            text-shadow: 0 0 10px rgba(180, 100, 255, 0.8);
+            text-align: center;
+            color: #d0aaff;
+            text-shadow: 0 0 12px #a64dff, 0 0 25px #6a00ff;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 15px;
         }
 
         input {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 8px;
+            border-radius: 6px;
             border: none;
-            outline: none;
-            font-size: 16px;
             text-align: center;
             background: #111;
             color: white;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            font-size: 14px;
         }
 
         input:focus {
+            outline: none;
             box-shadow: 0 0 10px #8a2be2;
         }
 
-        .result {
-            margin-top: 20px;
-            font-size: 22px;
-            font-weight: bold;
-            color: #00ffcc;
-            text-shadow: 0 0 12px rgba(0,255,200,0.7);
+        .rod {
+            margin-top: 10px;
+            width: 100%;
         }
 
-        .formula {
-            margin-top: 15px;
-            font-size: 12px;
-            opacity: 0.7;
+        .total {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .result {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #00ffcc;
+            text-shadow: 0 0 10px rgba(0,255,200,0.7);
         }
     </style>
 </head>
@@ -89,73 +80,75 @@
 <body>
 
 <div class="box">
-    <h2>⚡ Mobility Calculator</h2>
+    <h2>⚡ Loadout Calculator</h2>
 
-    <input type="text" id="weight" placeholder="Enter weight (e.g. 625, 1.5M)" oninput="calc()">
-
-    <div class="result" id="result"></div>
-
-    <div class="formula">
-        M = (W - 5)<sup>2.222</sup> × 15
+    <div class="grid">
+        <input placeholder="Weight 1" oninput="calc()">
+        <input placeholder="Weight 2" oninput="calc()">
+        <input placeholder="Weight 3" oninput="calc()">
+        <input placeholder="Weight 4" oninput="calc()">
+        <input placeholder="Weight 5" oninput="calc()">
+        <input placeholder="Weight 6" oninput="calc()">
+        <input placeholder="Weight 7" oninput="calc()">
+        <input placeholder="Weight 8" oninput="calc()">
     </div>
+
+    <input class="rod" placeholder="Rod" oninput="calc()">
+
+    <div class="total" id="total"></div>
+    <div class="result" id="result"></div>
 </div>
 
 <script>
-// Parse input like 1.5M → number
 function parseNumber(str) {
-    if (!str) return NaN;
+    if (!str) return 0;
 
     str = str.trim().toUpperCase();
 
-    const multipliers = {
+    const mult = {
         K: 1e3, M: 1e6, B: 1e9, T: 1e12,
         QA: 1e15, QN: 1e18, SX: 1e21, SP: 1e24
     };
 
     let match = str.match(/^([\d.]+)([A-Z]*)$/);
-    if (!match) return NaN;
+    if (!match) return 0;
 
-    let value = parseFloat(match[1]);
-    let suffix = match[2];
+    let val = parseFloat(match[1]);
+    let suf = match[2];
 
-    return multipliers[suffix] ? value * multipliers[suffix] : value;
+    return mult[suf] ? val * mult[suf] : val;
 }
 
-// Format number → K, M, B...
-function formatNumber(num) {
-    const units = [
-        { value: 1e24, symbol: "Sp" },
-        { value: 1e21, symbol: "Sx" },
-        { value: 1e18, symbol: "Qn" },
-        { value: 1e15, symbol: "Qa" },
-        { value: 1e12, symbol: "T" },
-        { value: 1e9, symbol: "B" },
-        { value: 1e6, symbol: "M" },
-        { value: 1e3, symbol: "K" }
+function format(num) {
+    const u = [
+        [1e24,"Sp"],[1e21,"Sx"],[1e18,"Qn"],[1e15,"Qa"],
+        [1e12,"T"],[1e9,"B"],[1e6,"M"],[1e3,"K"]
     ];
 
-    for (let i of units) {
-        if (num >= i.value) {
-            return (num / i.value).toFixed(2) + i.symbol;
-        }
+    for (let [v,s] of u) {
+        if (num >= v) return (num/v).toFixed(2)+s;
     }
-
-    return num.toString();
+    return Math.floor(num);
 }
 
-// Main calc
 function calc() {
-    let input = document.getElementById("weight").value;
-    let W = parseNumber(input);
+    let inputs = document.querySelectorAll("input");
+    let total = 0;
 
-    if (!W || W <= 5) {
+    inputs.forEach(i => total += parseNumber(i.value));
+
+    document.getElementById("total").innerText =
+        total > 0 ? "Total Weight: " + format(total) : "";
+
+    if (total <= 5) {
         document.getElementById("result").innerText = "";
         return;
     }
 
-    let M = Math.floor(Math.pow(W - 5, 2.222) * 15);
+    let M = Math.floor(Math.pow(total - 5, 2.222) * 15);
 
-    document.getElementById("result").innerText = formatNumber(M);
+    document.getElementById("result").innerText =
+        "Mobility: " + format(M);
 }
 </script>
 
